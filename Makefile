@@ -2,6 +2,10 @@ COMPILER := g++
 FLAGS := -O3
 COMPILE := $(COMPILER) $(FLAGS)
 
+INCLUDE_PATH := /usr/include
+LIB_PATH := /usr/lib/x86_64-linux-gnu/
+LIB_NAME := test
+
 INCLUDE := ./include
 SRC := ./src
 BIN := ./bin
@@ -16,18 +20,18 @@ vpath %.o $(BIN)
 all: build run;
 
 
-build: ./bin/main.out;
+build: $(BIN)/main.out;
 
 
-run: ./bin/main.out
-	./bin/main.out
+run: $(BIN)/main.out
+	$(BIN)/main.out
 
 
-./bin/main.out: $(BIN) $(DEP_FILES) main.cpp
-	$(COMPILE) main.cpp $(patsubst %, $(BIN)/%, $(DEP_FILES)) -o ./bin/main.out
+./bin/main.out: $(DEP_FILES) main.cpp
+	$(COMPILE) main.cpp $(patsubst %, $(BIN)/%, $(DEP_FILES)) -o $(BIN)/main.out
 
 
-%.o: %.cpp 
+%.o: %.cpp $(BIN) 
 	$(COMPILE) -c $^ -o $(BIN)/$@
 
 
@@ -35,8 +39,18 @@ $(BIN):
 	mkdir $(BIN)
 
 
+$(INCLUDE_PATH)/$(LIB_NAME): 
+	mkdir $(INCLUDE_PATH)/$(LIB_NAME)
+
+
+install: $(DEP_FILES) $(INCLUDE_PATH)/$(LIB_NAME)
+	ar crf $(BIN)/lib$(LIB_NAME).a $(patsubst %, $(BIN)/%, $(DEP_FILES))
+	cp -r include/*.hpp $(INCLUDE_PATH)/$(LIB_NAME)
+	cp $(BIN)/lib$(LIB_NAME).a $(LIB_PATH)
+
+
 clean: 
 	rm -rf ./bin/*
 
 
-.PHONY: all build run clean;
+.PHONY: all build run install clean;
