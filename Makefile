@@ -27,11 +27,11 @@ run: $(BIN)/main.out
 	$(BIN)/main.out
 
 
-./bin/main.out: $(DEP_FILES) main.cpp
+./bin/main.out:  $(BIN) $(DEP_FILES) main.cpp
 	$(COMPILE) main.cpp $(patsubst %, $(BIN)/%, $(DEP_FILES)) -o $(BIN)/main.out
 
 
-%.o: %.cpp $(BIN) 
+%.o: %.cpp
 	$(COMPILE) -c $^ -o $(BIN)/$@
 
 
