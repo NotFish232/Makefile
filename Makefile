@@ -7,7 +7,10 @@ BIN := ./bin
 
 
 SOURCE_FILES := $(shell find $(SRC)/ -type f -name '*.cpp')
-DEP_FILES := $(patsubst %.cpp, %.o, $(SOURCE_FILES))
+OBJ_FILES := $(patsubst $(SRC)/%.cpp, $(BIN)/%.o, $(SOURCE_FILES))
+
+MAIN_FILE := main.cpp
+TEST_FILE := tests.cpp 
 
 
 all: build run;
@@ -20,28 +23,27 @@ run: $(BIN)/main.out
 	$(BIN)/main.out
 
 
-tests: $(BIN)/tests.out
+test: $(BIN)/tests.out
 	$(BIN)/tests.out
-
-
-./bin/main.out:  $(BIN) $(DEP_FILES) main.cpp
-	$(COMPILE) main.cpp $(BIN)/*.o -o $(BIN)/main.out
-
-
-./bin/tests.out: $(BIN) $(DEP_FILES) tests.cpp
-	$(COMPILE) tests.cpp $(BIN)/*.o -o $(BIN)/tests.out
-
-
-%.o: %.cpp
-	$(COMPILE) -c $^ -o $(BIN)/$(notdir $@)
-
-
-$(BIN):
-	mkdir $(BIN)
-
 
 clean: 
 	rm -rf ./bin/*
 
 
-.PHONY: all build run clean;
+$(BIN)/main.out: $(OBJ_FILES) $(MAIN_FILE) 
+	$(COMPILE) $(MAIN_FILE) $(OBJ_FILES) -o $(BIN)/main.out
+
+
+$(BIN)/tests.out: $(OBJ_FILES) $(TEST_FILE)
+	$(COMPILE) $(TEST_FILE) $(OBJ_FILES) -o $(BIN)/tests.out
+
+
+$(BIN)/%.o: $(SRC)/%.cpp | $(BIN) 
+	$(COMPILE) -c $^ -o $@
+
+
+$(BIN): 
+	mkdir $(BIN)
+
+
+.PHONY: all build run test clean;
